@@ -67,6 +67,6 @@ for line in lines:
 precision = precision / len(lines)
 recall = recall / len(lines)
 
-print "Precision = " + precision
-print "Recall = " + recall
+print "Precision = " + str(precision)
+print "Recall = " + str(recall)
 
