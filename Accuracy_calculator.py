@@ -57,16 +57,16 @@ for line in lines:
 
         intersectionCount = len(list(set(documentList).intersection(referencesList)))
 
-        precision += intersectionCount / outputCount
-        recall += intersectionCount / len(referencesList)
+        precision += float(intersectionCount) / float(outputCount)
+        recall += float(intersectionCount) / float(len(referencesList))
 
     print str(printCounter) + '/' + str(len(lines)) + ' : Pre = ' + str(precision) + ' / Recall = ' + str(recall)
     printCounter = printCounter + 1
 
 # calculate the final value for precision and recall
-precision = precision / len(lines)
-recall = recall / len(lines)
+precision = float(precision) / float(len(lines))
+recall = float(recall) / float(len(lines))
 
-print "Precision = " + str(precision)
-print "Recall = " + str(recall)
+print "Precision = " + str(precision*100)
+print "Recall = " + str(recall*100)
 
