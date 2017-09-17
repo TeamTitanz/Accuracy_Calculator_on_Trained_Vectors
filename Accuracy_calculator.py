@@ -2,16 +2,16 @@ from gensim.models.keyedvectors import KeyedVectors
 import os
 
 # enter file input name
-mentionMap = 'mapAll.txt'
+mentionMap = 'finalMentionMap.txt'
 
 # enter word2vec bin file name
-vectorFileName = 'docvec_in_word2vec.bin'
+vectorFileName = 'word2vec.txt'
 
 # get Current path of this file
 currentPath = os.getcwd()
 
 # load word2vec file. Check whether the file is a Binary or not and set the boolean accordingly
-model = KeyedVectors.load_word2vec_format(currentPath + '/' + vectorFileName, binary=True)
+model = KeyedVectors.load_word2vec_format(currentPath + '/' + vectorFileName, binary=False)
 
 # Start reading the file in separate lines
 with open(currentPath + '/' + mentionMap) as f:
@@ -28,7 +28,7 @@ for line in lines:
         referencesList = line.split(';')[1].split(',')
         if max < len(referencesList):
             max = len(referencesList)
-outputCount = max
+outputCount = 100
 
 # initialize for precision and recall
 precision = 0.0
@@ -36,6 +36,7 @@ recall = 0.0
 
 # a count varianle to get visual feedback on the document count when running program
 printCounter = 0
+notInDictionary = 0
 
 # loop through each document in the mention map
 for line in lines:
@@ -48,8 +49,15 @@ for line in lines:
         document = line.split(';')[0]
         referencesList = line.split(';')[1].split(',')
 
-        modelOutput = model.most_similar(positive=[document], topn=outputCount)
+        try:
+            modelOutput = model.most_similar(positive=[document], topn=outputCount)
 
+        except KeyError:
+            print document + " not in dictionary"
+            notInDictionary = notInDictionary -1
+            printCounter = printCounter + 1
+            continue
+        
         # create a list of the documents only, returned by the model. Remove the vector values
         documentList = []
         for i in range(0, outputCount):
@@ -64,8 +72,8 @@ for line in lines:
     printCounter = printCounter + 1
 
 # calculate the final value for precision and recall
-precision = float(precision) / float(len(lines))
-recall = float(recall) / float(len(lines))
+precision = float(precision) / float(len(lines)-notInDictionary)
+recall = float(recall) / float(len(lines)-notInDictionary)
 
 print "Precision = " + str(precision*100)
 print "Recall = " + str(recall*100)

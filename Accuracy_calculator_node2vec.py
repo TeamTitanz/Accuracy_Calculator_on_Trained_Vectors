@@ -36,6 +36,7 @@ recall = 0.0
 
 # a count varianle to get visual feedback on the document count when running program
 printCounter = 0
+notInDictionary = 0
 
 # loop through each document in the mention map
 for line in lines:
@@ -58,6 +59,8 @@ for line in lines:
             #print modelOutput
         except KeyError:
             print document + " not in dictionary"
+            notInDictionary = notInDictionary - 1
+            printCounter = printCounter + 1
             continue
         
         # create a list of the documents only, returned by the model. Remove the vector values
@@ -75,8 +78,8 @@ for line in lines:
     printCounter = printCounter + 1
 
 # calculate the final value for precision and recall
-precision = float(precision) / float(len(lines))
-recall = float(recall) / float(len(lines))
+precision = float(precision) / float(len(lines) - notInDictionary)
+recall = float(recall) / float(len(lines)-notInDictionary)
 
 print "Precision = " + str(precision*100)
 print "Recall = " + str(recall*100)
