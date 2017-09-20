@@ -71,7 +71,7 @@ for line in lines:
         intersectionCount = len(list(set(documentList).intersection(newReferencesList)))
 
         precision += float(intersectionCount) / float(outputCount)
-        recall += float(intersectionCount) / float(len(newReferencesList))
+        recall += float(intersectionCount) / float(100)
 
     
     print str(printCounter) + '/' + str(len(lines)) + ' : Pre = ' + str(precision) + ' / Recall = ' + str(recall)
