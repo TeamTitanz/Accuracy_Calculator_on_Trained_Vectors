@@ -66,7 +66,7 @@ def clculate(mentionMapPath, vectorFilePath):
             intersectionCount = len(list(set(documentList).intersection(referencesList)))
 
             precision += float(intersectionCount) / float(outputCount)
-            recall += float(intersectionCount) / float(100)
+            recall += float(intersectionCount) / float(len(referencesList))
 
         # print str(printCounter) + '/' + str(len(lines)) + ' : Pre = ' + str(precision) + ' / Recall = ' + str(recall)
         printCounter = printCounter + 1
@@ -80,7 +80,7 @@ def clculate(mentionMapPath, vectorFilePath):
 
 
 alpha = ["a0.1", "a0.5", "a1", "a2", "a3"]
-p_value = ["p250", "p500", "p750", "p1000"]
+p_value = ["p250", "p500", "p750", "p1000", "p2000"]
 
 for a in alpha:
     for p in p_value:
