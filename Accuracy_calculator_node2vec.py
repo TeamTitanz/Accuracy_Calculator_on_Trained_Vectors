@@ -1,11 +1,12 @@
-from gensim.models.keyedvectors import KeyedVectors
 import os
 
+from gensim.models.keyedvectors import KeyedVectors
+
 # enter file input name
-mentionMap = 'finalMentionMap.txt'
+mentionMap = 'MentionMap.txt'
 
 # enter word2vec bin file name
-vectorFileName = 'numwalk10k_Large_cases_large_10k.emd'
+vectorFileName = 'supShort.emd'
 
 # get Current path of this file
 currentPath = os.getcwd()
@@ -24,11 +25,12 @@ with open(currentPath + '/' + mentionMap) as f:
 max = 0
 for line in lines:
     if (';') in line:
-        document = line.split(';')[0]
+        documentId = line.split(';')[0]
         referencesList = line.split(';')[1].split(',')
         if max < len(referencesList):
             max = len(referencesList)
-outputCount = max
+outputCount = 100
+# print "OutputCount\t", outputCount
 
 # initialize for precision and recall
 precision = 0.0
@@ -46,41 +48,50 @@ for line in lines:
         pass
 
     else:
-        document = line.split(';')[0]
-        document = document.lstrip("0")
+        documentId = line.split(';')[0]
+        documentId = documentId.lstrip("0")
         referencesList = line.split(';')[1].split(',')
 
-        newReferencesList = []
-        for reference in referencesList:
-                newReferencesList.append(str(int(reference)))
+        if ('' in referencesList):
+            referencesList = filter(lambda a: a != '', referencesList)
+
+        if (documentId in referencesList):
+            referencesList = filter(lambda a: a != documentId, referencesList)
 
         try:
-            modelOutput = model.most_similar(positive=[document], topn=outputCount)
-            #print modelOutput
+            modelOutput = model.most_similar(positive=[documentId], topn=outputCount)
         except KeyError:
-            print document + " not in dictionary"
+            print documentId + " not in dictionary"
             notInDictionary = notInDictionary - 1
             printCounter = printCounter + 1
             continue
-        
-        # create a list of the documents only, returned by the model. Remove the vector values
-        documentList = []
-        for i in range(0, outputCount):
-            documentList.append(modelOutput[i][0])
 
-        intersectionCount = len(list(set(documentList).intersection(newReferencesList)))
+        # create a list of the documents only, returned by the model. Remove the vector values
+        modelReturnedDocumentList = []
+        for i in range(0, len(modelOutput)):
+            modelReturnedDocumentList.append(str(modelOutput[i][0]))
+
+        intersectionCount = 0
+        for mentionCaseId in referencesList:
+            if (mentionCaseId in modelReturnedDocumentList):
+                intersectionCount += 1
 
         precision += float(intersectionCount) / float(outputCount)
-        recall += float(intersectionCount) / float(100)
 
-    
-    print str(printCounter) + '/' + str(len(lines)) + ' : Pre = ' + str(precision) + ' / Recall = ' + str(recall)
+        referencesListLength = len(referencesList)
+        if (referencesListLength != 0):
+            recall += float(intersectionCount) / referencesListLength
+            # print str(printCounter) + '/' + str(len(lines)), ' ; Recall = ' + str(float(intersectionCount) / referencesListLength)
+        else:
+            # If references list length is zero
+            recall += 1.0
+            # print str(printCounter) + '/' + str(len(lines)), ' ; Recall = ' + str(1.0)
+
     printCounter = printCounter + 1
 
 # calculate the final value for precision and recall
 precision = float(precision) / float(len(lines) - notInDictionary)
-recall = float(recall) / float(len(lines)-notInDictionary)
+recall = float(recall) / float(len(lines) - notInDictionary)
 
-print "Precision = " + str(precision*100)
-print "Recall = " + str(recall*100)
-
+# print "Precision = " + str(precision * 100)
+print "Recall = " + str(recall * 100)
